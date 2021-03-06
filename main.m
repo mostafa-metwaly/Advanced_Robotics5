@@ -48,28 +48,27 @@ end_effector_plot = plot3(0,0,0);
 
 points = 20;
 step = -2;
-% for i=0:points
-%         
-%     if ~ishandle(Robot), return, end
-%     delete([links_plot,joints_plot, platform_plot])
-%     delete(axes_plot)
-%     
-%     q = [i*step*0.5 i*step*2 i*step];
-%     FK(q, params, T_bases, T_tools, 1);
-%     drawnow
-% end
-step = 10;
-i = 7;
-% A = linspace(1:100,10);
-for A = 0:i
+for i=0:points
         
     if ~ishandle(Robot), return, end
     delete([links_plot,joints_plot, platform_plot])
     delete(axes_plot)
     
-    pose = [10  10  A*100];
-    q =InverseKinematics(params,pose)
-    q = rad2deg(q);
+    q = [i*step*0.5 i*step*2 i*step];
     FK(q, params, T_bases, T_tools, 1);
+    drawnow
+end
+step = 10;
+i = 50;
+for A = 1:i
+        
+    if ~ishandle(Robot), return, end
+    delete([links_plot,joints_plot, platform_plot])
+    delete(axes_plot)
+    
+    pose = [10*A*0.2  10*A*0.1  A*20*0.5];
+    q =InverseKinematics(params,pose);
+    q = rad2deg(q)
+    FK(q, params, T_bases, T_tools, 1)
     drawnow
 end

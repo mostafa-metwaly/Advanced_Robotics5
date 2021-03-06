@@ -37,6 +37,6 @@ if(x2==0), result=[nan;nan;nan]; return; end
 %     error('Error in interx.m at x'); end
 x = 1/2*(r1^2+x2^2-2*y*y2+y2^2-2*z*z2+z2^2-r2^2)/x2;
 %% convert result back to global
-x = x1 + x
+x = x1 + x;
 y = y1 + y;
 z = z1 + z;
