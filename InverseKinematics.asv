@@ -1,19 +1,32 @@
-% Solving the inverse Kinematics of the delta robot using the Analytical
-% solution and applying the vectors for each joint in the whole manipulator.
-function  [theta_angles]=InverseKinematics(params,pose)
-
-[x, y, z] = feval(@(x) x{:}, num2cell(pose));
-[L, l, sb, wb, ub, sp, wp, up, h] = feval(@(x) x{:}, num2cell(params));
 
 
-%solving the relation between the platform and base :
+% function  [theta_angles]=InverseKinematics(params,pose)
+% 
+% [x, y, z] = feval(@(x) x{:}, num2cell(pose));
+% [L, l, sb, wb, ub, sp, wp, up, h] = feval(@(x) x{:}, num2cell(params));
+
+%% Robot parameters (in mm):
+% base lengths:
+wb = 164;
+sb = 567;
+ub = 327;
+
+% tool lengths:
+up = 44;
+sp = 76;
+wp = 22;
+
+% links lengths:
+L = 524;
+l = 1244;
+h = 0.05*l;
+
 a = wb - up;
 b = sp/2 - wb * sqrt(3)/2;
 c = wp - 0.5 * wb;
+[x,y,z] = deal(100,100,-1000);
+% E*cos(theta) + F*sin(theta)+G=0
 
-%writing the quadratic equations from the three constraint equations yield the kinematics equation : 
-% E*cos(theta) + F*sin(theta)+G = 0,
-%  E,F,G for each leg:
 E1 = 2*L*(y+a);
 F1 = 2*z*L;
 G1 = x^2 + y^2 + z^2 + a^2 + L^2 +(2*a*y )- l^2;
@@ -26,25 +39,17 @@ E3 = L * (sqrt(3)*(x-b)-y-c);
 F3 = 2*z*L;
 G3 = x^2 + y^2 + z^2 + b^2 + c^2 + L^2 + 2*( -x*b + c*y) - l^2;
 
+m = 1;
 
+% t = [-F1 + m*sqrt(E1^2 + F1^2 - G1^2)/(G1-E1), -F2 + m*sqrt(E2^2 + F2^2 - G2^2)/(G2-E2),-F3 + m*sqrt(E3^2 + F3^2 - G3^2)/(G3-E3)]
 
-
-
-%solving for the elbow up or elbow down(2):
-% m = 1;
-m = 2;
-
-P1 = [G1-E1 2*F1 G1+E1];
-P2 = [G2-E2 2*F2 G2+E2];
-P3 = [G3-E3 2*F3 G3+E3];
-
-%solving the quadratic equation for each leg getting two solutions:
-t = [roots(P1) roots(P2) roots(P3)];
-
+Px = [G1-E1 2*F1 G1+E1]
+Py = [G2-E2 2*F2 G2+E2]
+Pz = [G3-E3 2*F3 G3+E3]
+t = [roots(Px) roots(Py) roots(Pz)]
 %  Tangent Half-Angle Substitution:
-theta = real([2* atan(t(m,1)); 2* atan(t(m,2)); 2* atan(t(m,3))]);
+theta = real([2* atan(t(1,1)); 2* atan(t(2)); 2* atan(t(3))]);
 
-%Saving the actuated angles of each joint:
-theta_angles = [theta(1) theta(2) theta(3)];
 
-end
+theta_angles = [theta(1) theta(2) theta(3)]
+
