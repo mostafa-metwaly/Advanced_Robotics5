@@ -60,7 +60,11 @@ for i=1:points
     delete([links_plot,joints_plot, platform_plot])
     delete(axes_plot)
     
+<<<<<<< Updated upstream
     pose = [x_circle(i) y_circle(i) z_circle(i)];
+=======
+    pose = [10*A*0.2  10*A*0.1   A*20*0.5];
+>>>>>>> Stashed changes
     q =InverseKinematics(params,pose);
     q = rad2deg(q);
     FK(q, params, T_bases, T_tools, 1);
