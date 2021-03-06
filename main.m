@@ -35,7 +35,7 @@ params = [L, l, sb, wb, ub, sp, wp, up, h];
 % q = [0 0 0]; % in degrees
 % [x, y, z] = FK(q, params, T_bases, T_tools, 1);
 
-%% Testing:
+%% Testing Forward Kinematics:
 Robot = figure('units','normalized','outerposition',[0 0 1 1]);
 global axes_plot links_plot joints_plot end_effector_plot platform_plot
 axes_plot = plot3(0,0,0);
@@ -46,29 +46,23 @@ joints_plot = plot3(0,0,0);
 hold on
 end_effector_plot = plot3(0,0,0);
 
-points = 20;
-step = -2;
-for i=0:points
+points = 60;
+
+radius = 200;
+angles = linspace(0, 360, points);
+x_circle = radius*sind(angles);
+y_circle = radius*cosd(angles);
+z_circle = ones(1, points)*-750;
+
+for i=1:points
         
     if ~ishandle(Robot), return, end
     delete([links_plot,joints_plot, platform_plot])
     delete(axes_plot)
     
-    q = [i*step*0.5 i*step*2 i*step];
-    FK(q, params, T_bases, T_tools, 1);
-    drawnow
-end
-step = 10;
-i = 50;
-for A = 1:i
-        
-    if ~ishandle(Robot), return, end
-    delete([links_plot,joints_plot, platform_plot])
-    delete(axes_plot)
-    
-    pose = [10*A*0.2  10*A*0.1  A*20*0.5];
+    pose = [x_circle(i) y_circle(i) z_circle(i)];
     q =InverseKinematics(params,pose);
-    q = rad2deg(q)
-    FK(q, params, T_bases, T_tools, 1)
+    q = rad2deg(q);
+    FK(q, params, T_bases, T_tools, 1);
     drawnow
 end

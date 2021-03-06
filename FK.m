@@ -12,7 +12,7 @@ A1v = [0; -wb - L*cos(q1) + up; -L*sin(q1)];
 A2v = [sqrt(3)*(wb+L*cos(q2))/2 - sp/2; (wb+L*cos(q2))/2 - wp; -L*sin(q2)];
 A3v = [-sqrt(3)*(wb+L*cos(q3))/2 + sp/2; (wb+L*cos(q3))/2 - wp; -L*sin(q3)];
 
-p = [A1v, A2v, A3v]
+p = [A1v, A2v, A3v];
 [x, y, z] = interx(p(:,1),p(:,2),p(:,3),l,l,l,0);
 
 %% Plotting
@@ -20,8 +20,8 @@ p = [A1v, A2v, A3v]
 global axes_plot links_plot joints_plot platform_plot
 
 R = [pi, -pi/3, pi/3];
-
 for i = 1:3
+    
     
     OT = Tx(x) * Ty(y) * Tz(z) * cell2mat(T_tools(i)) * Tx(h/2);
 
@@ -31,6 +31,12 @@ for i = 1:3
     
     T_parallel = [OT(1,4) - O2(1,4), OT(2,4) - O2(2,4), OT(3,4) - O2(3,4)];
     T_parallel = T_parallel*l/norm(T_parallel);
+    
+    passive_joint1_phi = atan2(T_parallel(1), T_parallel(2));
+    passive_joint1_theta = atan2(T_parallel(1), T_parallel(2));
+    
+%     passive_joint2_phi = atan2(T_parallel(1), T_parallel(2));
+%     passive_joint2_theta = atan2(T_parallel(1), T_parallel(2));
     
     O3 = O2 * Rx(q(i)) * Rz(-R(i)) * Tx( T_parallel(1) ) * Ty( T_parallel(2) ) * Tz( T_parallel(3) );
     O4 = O3 * Rz(R(i)) * Tx(-h/2);
@@ -104,7 +110,7 @@ for i = 1:3
     
      platform_plot = [platform_plot fill3(Base_x, Base_y, Base_z,'black')];
     
-    plot3(x, y, z,'.','Color','0.8 0 0 1','MarkerSize',12.5);
+    plot3(x, y, z,'.','Color','0.8 0 0 1','MarkerSize',5);
     
 end
 
