@@ -26,14 +26,6 @@ E3 = L * (sqrt(3)*(x-b)-y-c);
 F3 = 2*z*L;
 G3 = x^2 + y^2 + z^2 + b^2 + c^2 + L^2 + 2*( -x*b + c*y) - l^2;
 
-<<<<<<< Updated upstream
-m = 2;
-% m = 2;
-=======
->>>>>>> Stashed changes
-
-
-
 
 %solving for the elbow up or elbow down(2):
 % m = 1;
