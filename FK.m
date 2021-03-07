@@ -13,8 +13,9 @@ A2v = [sqrt(3)*(wb+L*cos(q2))/2 - sp/2; (wb+L*cos(q2))/2 - wp; -L*sin(q2)];
 A3v = [-sqrt(3)*(wb+L*cos(q3))/2 + sp/2; (wb+L*cos(q3))/2 - wp; -L*sin(q3)];
 
 p = [A1v, A2v, A3v];
-[x, y, z] = interx(p(:,1),p(:,2),p(:,3),l,l,l,0);
-
+result = interx(p(:,1),p(:,2),p(:,3),l,l,l,0);
+[x, y, z] = feval(@(x) x{:}, num2cell(result));
+% if(isnan(x)) || (isnan(y)) || (isnan(z)), return; end
 %% Plotting
 
 global axes_plot links_plot joints_plot platform_plot

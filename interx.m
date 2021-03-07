@@ -7,7 +7,7 @@
 % Computation Code calculated in (and copied from) Maple
 % For questions/suggestions, contact hrishi.shah2002@gmail.com
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [x, y, z] = interx(X1,X2,X3,r1,r2,r3,pos)
+function result = interx(X1,X2,X3,r1,r2,r3,pos)
 if(nargin<7), pos=1; end % default value
 x1=X1(1); y1=X1(2); z1=X1(3);
 x2=X2(1); y2=X2(2); z2=X2(3);
@@ -37,6 +37,4 @@ if(x2==0), result=[nan;nan;nan]; return; end
 %     error('Error in interx.m at x'); end
 x = 1/2*(r1^2+x2^2-2*y*y2+y2^2-2*z*z2+z2^2-r2^2)/x2;
 %% convert result back to global
-x = x1 + x;
-y = y1 + y;
-z = z1 + z;
+result = [x1 + x, y1 + y, z1 + z];

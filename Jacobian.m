@@ -1,4 +1,6 @@
-function J = Jacobian(x, y, z, theta1, theta2, theta3, L)
+function J = Jacobian(x, y, z, theta1, theta2, theta3, params)
+
+[L, l, sB, wB, uB, sP, wP, uP, h] = feval(@(x) x{:}, num2cell(params));
 
 a = wB - uP ;
 b = sP/2 - sqrt(3)/2 * wB ;
@@ -16,6 +18,6 @@ J_theta = [b11 0    0;
            0   b22  0;
            0   0   b33];
        
-J = inv(J_p) * J_theta ;
+J = inv(J_P) * J_theta ;
 
 end
