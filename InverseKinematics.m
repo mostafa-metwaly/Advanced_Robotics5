@@ -1,5 +1,3 @@
-
-
 function  [theta_angles]=InverseKinematics(params,pose)
 
 [x, y, z] = feval(@(x) x{:}, num2cell(pose));

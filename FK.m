@@ -15,26 +15,54 @@ A3v = [-sqrt(3)*(wb+L*cos(q3))/2 + sp/2; (wb+L*cos(q3))/2 - wp; -L*sin(q3)];
 p = [A1v, A2v, A3v];
 result = interx(p(:,1),p(:,2),p(:,3),l,l,l,0);
 [x, y, z] = feval(@(x) x{:}, num2cell(result));
-% if(isnan(x)) || (isnan(y)) || (isnan(z)), return; end
+if(isnan(x)) || (isnan(y)) || (isnan(z)), return; end
 %% Plotting
 
 global axes_plot links_plot joints_plot platform_plot
+
+nVector = [0 0 1]; % vector parallel to base plane
+V0 = [0 0 0]; % Arbitrary point on the base plane
 
 R = [pi, -pi/3, pi/3];
 for i = 1:3
     
     
-    OT = Tx(x) * Ty(y) * Tz(z) * cell2mat(T_tools(i)) * Tx(h/2);
+    OT = Tx(x) * Ty(y) * Tz(z) * cell2mat(T_tools(i));
 
     O0 = cell2mat(T_bases(i));
     O1 = O0 * Rx(-q(i)) * Ty(L);
     O2 = O1 * Tx(h/2);
     
+    P0 = [O1(1,4) O1(2,4) O1(3,4)]; % point 1 on the parallelogram link
+    P1 = [OT(1,4) OT(2,4) OT(3,4)]; % point 2 on the parallelogram link
+    
+    [I,check]=plane_line_intersect(nVector,V0,P0,P1);
+    
+    if check == 0 || check == 2
+        x = nan; y = nan; z = nan;
+        return
+    end
+    
+    xy = sqrt(I(1)^2 + I(2)^2);
+    
+    if xy <= wb
+        x = nan; y = nan; z = nan;
+        disp("intersecting the base plane")
+        return
+    end
+    
+    OT = OT * Tx(h/2);
+    
     T_parallel = [OT(1,4) - O2(1,4), OT(2,4) - O2(2,4), OT(3,4) - O2(3,4)];
+    T_active = [O1(1,4) - O0(1,4), O1(2,4) - O0(2,4), O1(3,4) - O0(3,4)];
     T_parallel = T_parallel*l/norm(T_parallel);
     
+    
     passive_joint1_phi = atan2(T_parallel(1), T_parallel(2));
-    passive_joint1_theta = atan2(T_parallel(1), T_parallel(2));
+    passive_joint1_theta = atan2(T_parallel(3), T_parallel(2));
+    active_angle = atan2(T_active(3), T_active(2));
+    
+    angle_parallel(i) = passive_joint1_theta - active_angle;
     
 %     passive_joint2_phi = atan2(T_parallel(1), T_parallel(2));
 %     passive_joint2_theta = atan2(T_parallel(1), T_parallel(2));
@@ -45,8 +73,68 @@ for i = 1:3
     O6 = O5 * Rz(-R(i)) * Tx( -T_parallel(1) ) * Ty( -T_parallel(2) ) * Tz( -T_parallel(3) );
     O7 = O6 * Rz(R(i)) * Tx(h/2);
 
-    O = [O0 O1 O2 O3 O4 O5 O6 O7];
+    O_all(:,:,i) = [O0 O1 O2 O3 O4 O5 O6 O7];
+end
 
+% checking = angle_parallel > 0;
+% if sum(checking) > 0
+%     O_all = []
+%     result = interx(p(:,1),p(:,2),p(:,3),l,l,l,0);
+%     [x, y, z] = feval(@(x) x{:}, num2cell(result));
+%     
+%     for i = 1:3
+%         OT = Tx(x) * Ty(y) * Tz(z) * cell2mat(T_tools(i));
+% 
+%         O0 = cell2mat(T_bases(i));
+%         O1 = O0 * Rx(-q(i)) * Ty(L);
+%         O2 = O1 * Tx(h/2);
+% 
+%         P0 = [O1(1,4) O1(2,4) O1(3,4)]; % point 1 on the parallelogram link
+%         P1 = [OT(1,4) OT(2,4) OT(3,4)]; % point 2 on the parallelogram link
+% 
+%         [I,check]=plane_line_intersect(nVector,V0,P0,P1);
+% 
+%         if check == 0 || check == 2
+%             x = nan; y = nan; z = nan;
+%             return
+%         end
+% 
+%         xy = sqrt(I(1)^2 + I(2)^2);
+% 
+%         if xy <= wb
+%             x = nan; y = nan; z = nan;
+%             disp("intersecting the base plane")
+%             return
+%         end
+% 
+%         OT = OT * Tx(h/2);
+% 
+%         T_parallel = [OT(1,4) - O2(1,4), OT(2,4) - O2(2,4), OT(3,4) - O2(3,4)];
+%         T_active = [O1(1,4) - O0(1,4), O1(2,4) - O0(2,4), O1(3,4) - O0(3,4)];
+%         T_parallel = T_parallel*l/norm(T_parallel);
+% 
+% 
+%         passive_joint1_phi = atan2(T_parallel(1), T_parallel(2));
+%         passive_joint1_theta = atan2(T_parallel(3), T_parallel(2));
+%         active_angle = atan2(T_active(3), T_active(2));
+% 
+%         angle_parallel(i) = passive_joint1_theta - active_angle;
+% 
+%     %     passive_joint2_phi = atan2(T_parallel(1), T_parallel(2));
+%     %     passive_joint2_theta = atan2(T_parallel(1), T_parallel(2));
+% 
+%         O3 = O2 * Rx(q(i)) * Rz(-R(i)) * Tx( T_parallel(1) ) * Ty( T_parallel(2) ) * Tz( T_parallel(3) );
+%         O4 = O3 * Rz(R(i)) * Tx(-h/2);
+%         O5 = O4 * Tx(-h/2);
+%         O6 = O5 * Rz(-R(i)) * Tx( -T_parallel(1) ) * Ty( -T_parallel(2) ) * Tz( -T_parallel(3) );
+%         O7 = O6 * Rz(R(i)) * Tx(h/2);
+% 
+%         O_all(:,:,i) = [O0 O1 O2 O3 O4 O5 O6 O7];
+%     end
+% end
+
+for i = 1:3
+    O = O_all(:,:,i);
     if enable_plot
         % figure('units','normalized','outerposition',[0 0 1 1])
 
@@ -111,7 +199,7 @@ for i = 1:3
     
      platform_plot = [platform_plot fill3(Base_x, Base_y, Base_z,'black')];
     
-    plot3(x, y, z,'.','Color','0.8 0 0 1','MarkerSize',5);
+    plot3(x, y, z,'.','Color','0.8 0 0 1','MarkerSize',12.5);
     
 end
 

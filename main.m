@@ -50,41 +50,77 @@ plt = plot3(0,0,0);
 
 points = 60;
 
-% radius = 200;
-% angles = linspace(0, 360, points);
-% x_circle = radius*sind(angles);
-% y_circle = radius*cosd(angles);
-% z_circle = ones(1, points)*-750;
-step = 30;
-m = [];
-pose = [];
-for q1 = -30:step:90
-    for q2 = -30:step:90
-        for q3 = -30:step:90
-            q = [q1 q2 q3];
-% for i=1:points
-        
-            if ~ishandle(Robot), return, end
-            delete([links_plot,joints_plot, platform_plot])
-            delete(axes_plot)
-
-%             [x ,y, z] = deal(0 ,0, -q1*20);
-            [x,y,z] = FK(q, params, T_bases, T_tools, 1)
-            pose = [x y z];
-            q =InverseKinematics(params, pose)
-            pose(end+1,:) = [x y z];
-            J = Jacobian(x,y,z, q(1), q(2), q(3), params);
-            m(end+1) = sqrt(det(J * J'))
-
-            hold on
-            if (m < 1 )
-                plt = [plt plot3(x, y, z,'.','Color','1 0 0 1','MarkerSize',20)];                
-            else
-                plt = [plt plot3(x, y, z,'.','Color','0.8 0 0.8 1','MarkerSize',20)];
-
-            end
-            drawnow
-    
-        end
-    end
+radius = 200;
+angles = linspace(0, 360, points);
+x_circle = radius*sind(angles);
+y_circle = radius*cosd(angles);
+z_circle = ones(1, points)*-750;
+title("Inverse Kinematics Circle Test")
+for i=1:points
+    if ~ishandle(Robot), return, end
+    delete([links_plot,joints_plot, platform_plot])
+    delete(axes_plot)
+    pose = [x_circle(i) y_circle(i) z_circle(i)];
+    q = InverseKinematics(params,pose);
+    q = rad2deg(q);
+    [x, y, z] = FK(q, params, T_bases, T_tools, 1);
+    drawnow
 end
+
+
+%% Singularity Map
+% step = 20;
+% m = [];
+% pose = [];
+% tot = ceil(200/20);
+% counter = 0;
+% for q1 = -20:step:180
+%     counter = counter+1;
+%     sprintf("Loop %d out of %d loops",counter,tot)
+%     for q2 = -20:step:180
+%         for q3 = -20:step:180
+%             q = [q1 q2 q3];
+% % for i=1:points
+%         
+%             if ~ishandle(Robot), return, end
+%             delete([links_plot,joints_plot, platform_plot])
+%             delete(axes_plot)
+% 
+%             [x, y, z] = FK(q, params, T_bases, T_tools, 0);
+%             if (isnan(x)) || (isnan(y)) || (isnan(z))
+%                 continue
+%             end
+%             pose(end+1,:) = [x y z];
+%             J = Jacobian(x,y,z, q(1), q(2), q(3), params);
+%             m(end+1) = round(sqrt(det(J * J')));
+% 
+%             hold on
+%             if (m(end) < 200000 )
+%                 plot3(x, y, z,'*','Color','1 0 0 1','MarkerSize',20);
+%             else
+%                 plot3(x, y, z,'.','Color','0.8 0 0.8 1','MarkerSize',20);
+%             end
+%             drawnow
+%     
+%         end
+%     end
+% end
+%% Plotting:
+
+% figure;
+% titles = ['x', 'y', 'z'];
+% scatter3(pose(:,1), pose(:,2), pose(:,3), 40, m,'filled')    % draw the scatter plot
+% ax = gca;
+% % ax.XDir = 'reverse';
+% %     view(-31,14)
+% xlabel("X")
+% ylabel("Y")
+% zlabel("Z")
+% title('Singularity Map')
+% 
+% colormap(flipud(winter));
+% cb = colorbar;                                     % create and label the colorbar
+% cb.Label.String = 'Manipulability Magnitude';
+% 
+% hold on
+% FK([0 0 0], params, T_bases, T_tools, 1);
